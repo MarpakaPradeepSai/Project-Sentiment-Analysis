@@ -58,14 +58,14 @@ def get_sentiment_label(probs):
     max_index = probs.argmax()
     return sentiment_mapping[max_index]
 
-# --- Function to get background color class based on sentiment ---
-def get_background_color_class(label):
+# --- Function to get background color based on sentiment (original colors) ---
+def get_background_color(label):
     if "Positive" in label:
-        return "positive"
+        return "#C3E6CB"  # Original softer green
     elif "Neutral" in label:
-        return "neutral"
+        return "#FFE8A1"  # Original softer yellow
     else:
-        return "negative"
+        return "#F5C6CB"  # Original softer red
 
 # --- Streamlit app ---
 st.set_page_config(
@@ -79,86 +79,54 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* --- General Styles --- */
-    body {
-        background-color: #f0f2f5; /* Warmer off-white background */
-        font-family: 'Open Sans', sans-serif;
+    /* Import Google Fonts - Keeping Nunito and Open Sans for general text */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
+
+    .main {
+        background-color: #F0F2F6; /* Original main background color */
+        font-family: 'Open Sans', sans-serif; /* Keep Open Sans for body */
         color: #333;
     }
     h1 {
-        font-family: 'Nunito', sans-serif;
-        color: #4c6ef5; /* Soft blue title color */
+        font-family: 'Nunito', sans-serif; /* Keep Nunito for title */
+        color: #6a0572; /* Original title color */
         text-align: center;
-        font-size: 2.7em;
-        margin-bottom: 20px;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    h3 {
-        font-family: 'Nunito', sans-serif;
-        color: #333;
+        font-size: 3em; /* Original title size */
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Original text shadow */
     }
     .stButton>button {
-        background: #66a3ff; /* Soft blue button background */
+        background: linear-gradient(90deg, #ff8a00, #e52e71); /* Original button gradient */
         color: white !important;
         border: none;
-        border-radius: 25px;
-        padding: 12px 24px;
-        font-size: 1.1em;
-        font-weight: 500;
+        border-radius: 25px; /* Original button border-radius */
+        padding: 10px 20px;
+        font-size: 1.2em; /* Original button font-size */
+        font-weight: bold; /* Original button font-weight */
         cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Original button transition */
     }
     .stButton>button:hover {
-        background-color: #4d88e6; /* Darker blue on hover */
-        transform: scale(1.03);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05); /* Original button hover transform */
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); /* Original button hover box-shadow */
         color: white !important;
     }
     .prediction-box {
-        border-radius: 25px;
-        padding: 15px;
-        text-align: center;
-        font-size: 18px;
-        margin-top: 15px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    .prediction-box h3 {
-        margin-bottom: 0; /* Remove default margin for h3 inside prediction box */
+        border-radius: 25px; /* Original prediction box border-radius */
+        padding: 10px; /* Original prediction box padding */
+        text-align: center; /* Original prediction box text-align */
+        font-size: 18px; /* Original prediction box font-size */
     }
     .stTextArea textarea {
-        border-radius: 15px;
-        border: 1px solid #ced4da;
-        padding: 12px;
-        background-color: #ffffff;
-        box-shadow: inset 2px 2px 5px #e0e0e0; /* Inset shadow for text area */
+        border-radius: 15px; /* Keep text area border-radius */
+        border: 1px solid #ced4da; /* Keep text area border */
+        padding: 10px; /* Keep text area padding */
+        background-color: #FFFFFF; /* Keep text area background */
+        box-shadow: 3px 3px 5px #9E9E9E; /* Keep text area shadow */
     }
     .stTextArea textarea::placeholder {
-        color: #999;
-        font-style: italic;
-    }
-    .positive {
-        background-color: #d4edda; /* Softer green for positive */
-        color: #155724;
-    }
-    .neutral {
-        background-color: #fff3cd; /* Softer yellow for neutral */
-        color: #85640a;
-    }
-    .negative {
-        background-color: #f8d7da; /* Softer red for negative */
-        color: #721c24;
-    }
-    .airpods-image-row {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-    .airpods-image-row img {
-        width: 100px;
-        margin: 0 10px;
-        border-radius: 8px; /* Rounded corners for images */
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        color: #999; /* Light gray placeholder text - keep if desired */
+        font-style: italic; /* Italic placeholder text - keep if desired */
     }
     """,
     unsafe_allow_html=True
@@ -167,7 +135,7 @@ st.markdown(
 # --- App Title ---
 st.markdown(
     """
-    <h1 style="font-size: 40px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
+    <h1 style="font-size: 45px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
     """,
     unsafe_allow_html=True
 )
@@ -181,32 +149,31 @@ image_urls = [
     "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
 ]
 
-st.markdown('<div class="airpods-image-row">', unsafe_allow_html=True)
-for url in image_urls:
-    st.image(url, width=100)
-st.markdown('</div>', unsafe_allow_html=True)
-
+cols = st.columns(5)
+for i, url in enumerate(image_urls):
+    with cols[i]:
+        st.image(url, width=100)
 
 # --- User Input Text Area ---
-user_input = st.text_area("Share your experience with AirPods:")
+user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
 
 # --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"):
+if st.button("🔍 Analyze Sentiment"): # Original button text and icon
     if user_input:
-        with st.spinner('Analyzing sentiment...'):
-            time.sleep(0.5)
+        with st.spinner('Analyzing sentiment...'): # Keep spinner
+            time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
-            sentiment_class = get_background_color_class(sentiment_label)
+            background_color = get_background_color(sentiment_label)
 
-        st.divider()
+        st.divider() # Keep divider
         st.markdown(
             f"""
-            <div class="prediction-box {sentiment_class}">
+            <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
                 <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
             </div>
             """,
             unsafe_allow_html=True
         )
     else:
-        st.error("⚠️ Please enter a review to analyze.")
+        st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
