@@ -3,7 +3,8 @@ from transformers import AlbertTokenizer, AutoModelForSequenceClassification
 import torch
 
 # Update the MODEL_PATH to point to your local directory
-MODEL_PATH = '/path/to/Project-Sentiment-Analysis/ALBERT_Model'
+# Define the model path relative to your repo structure
+MODEL_PATH = './ALBERT_Model'
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
 tokenizer = AlbertTokenizer.from_pretrained(MODEL_PATH)
 
