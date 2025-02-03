@@ -5,7 +5,7 @@ import requests
 
 # Define a function to load the model and tokenizer from GitHub
 def load_model_from_github():
-    model_url = "https://raw.githubusercontent.com/MarpakaPradeepSai/Project-Sentiment-Analysis/main/ALBERT_Model/"
+    model_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/tree/main/ALBERT_Model"
     
     # Load model and tokenizer from the GitHub repository
     model = AutoModelForSequenceClassification.from_pretrained(model_url)
