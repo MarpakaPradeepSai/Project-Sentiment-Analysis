@@ -68,9 +68,25 @@ def get_background_color(label):
     else:
         return "#F5C6CB"  # Original softer red
 
-# --- Function to generate floating emojis HTML (DISABLED for now) ---
+# --- Function to generate floating emojis HTML ---
 def generate_floating_emojis(label):
-    return "" # Return empty string to disable emojis
+    emoji = ""
+    if "Positive" in label:
+        emoji = "😊"
+    elif "Neutral" in label:
+        emoji = "😐"
+    else:
+        emoji = "😡"
+
+    emojis_html = '<div class="floating-emojis">'
+    for i in range(3): # Generate a few emojis
+        # Randomize horizontal position and animation delay slightly for each emoji
+        start_left = 40 + random.randint(0, 20) # Start left position between 40% and 60%
+        animation_delay = random.uniform(0, 0.5) # Slight delay for each emoji to start
+        emojis_html += f'<span class="floating-emoji" style="left: {start_left}%; animation-delay: {animation_delay}s;">{emoji}</span>'
+    emojis_html += '</div>'
+    return emojis_html
+
 
 # --- Streamlit app ---
 st.set_page_config(
@@ -123,6 +139,8 @@ st.markdown(
         font-size: 18px; /* Original prediction box font-size */
         position: relative; /* Required for absolute positioning of floating emojis */
         overflow: hidden; /* Clip emojis if they go outside the box */
+        margin-top: 15px; /* Add some margin above the prediction box for spacing */
+        margin-bottom: 15px; /* Add some margin below the prediction box for spacing */
     }
     .stTextArea textarea {
         border-radius: 15px; /* Keep text area border-radius */
@@ -136,17 +154,33 @@ st.markdown(
         font-style: italic; /* Italic placeholder text - keep if desired */
     }
 
-    /* Floating Emojis CSS - DISABLED for now */
+    /* Floating Emojis CSS */
     .floating-emojis {
-        display: none; /* Hide emojis for now */
+        position: absolute;
+        top: 0; /* Start from the top of the prediction box */
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* To prevent emojis from interfering with clicks */
     }
 
     .floating-emoji {
-        display: none; /* Hide emojis for now */
+        position: absolute;
+        bottom: -10px; /* Start slightly below the prediction box */
+        font-size: 2em; /* Adjust size as needed */
+        opacity: 0; /* Start invisible */
+        animation: floatUpAndFade 1.5s ease-out forwards; /* Animation */
     }
 
     @keyframes floatUpAndFade {
-        /* Animation - DISABLED for now */
+        0% {
+            transform: translateY(20px); /* Start position below */
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-80px); /* End position above */
+            opacity: 0;
+        }
     }
     """,
     unsafe_allow_html=True
@@ -175,29 +209,32 @@ for i, url in enumerate(image_urls):
         st.image(url, width=100)
 
 # --- User Input Text Area ---
-user_input = st.text_area("Enter your AirPods review here")
+user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
 
-st.divider() # Place the divider BEFORE creating the placeholder
-prediction_placeholder = st.empty() # Create the placeholder AFTER the divider
+# --- Placeholder for Sentiment Result ---
+prediction_placeholder = st.empty() # Create an empty placeholder
+st.divider() # Place the divider here, outside the placeholder
 
 # --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"):
+if st.button("🔍 Analyze Sentiment"): # Original button text and icon
     if user_input:
-        with st.spinner('Analyzing sentiment...'):
-            time.sleep(0.5)
+        with st.spinner('Analyzing sentiment...'): # Keep spinner
+            time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
             background_color = get_background_color(sentiment_label)
-            floating_emojis_html = generate_floating_emojis(sentiment_label) # This will now return an empty string
+            floating_emojis_html = generate_floating_emojis(sentiment_label) # Generate emojis HTML
 
+        # Update the placeholder with the new markdown content
         prediction_placeholder.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                {floating_emojis_html}  <!-- This will be empty -->
+                {floating_emojis_html} <!-- Insert floating emojis here -->
                 <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
             </div>
             """,
             unsafe_allow_html=True
         )
     else:
-        st.error("⚠️ Please enter a review to analyze.")
+        st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
+        prediction_placeholder.empty() # Optionally clear the placeholder if there's an error
