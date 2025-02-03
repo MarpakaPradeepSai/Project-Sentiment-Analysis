@@ -83,6 +83,7 @@ st.markdown(
     .stButton>button:hover {
         transform: scale(1.05);
         box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        color: white !important; /* Stay white on hover */
     }
     .prediction-box {
         border-radius: 25px;
