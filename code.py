@@ -1,78 +1,48 @@
-# sentiment_app.py
 import streamlit as st
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 
-# Load model and tokenizer
+# Function to load the model and tokenizer
 @st.cache_resource
-def load_model():
-    # Update the path to point to your ALBERT_Model directory
-    model = AutoModelForSequenceClassification.from_pretrained('./ALBERT_Model')
-    tokenizer = AutoTokenizer.from_pretrained('./ALBERT_Model')
+def load_model_tokenizer():
+    model_path = './ALBERT_model'  # Path to your saved model files
+    model = AutoModelForSequenceClassification.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
     return model, tokenizer
 
-model, tokenizer = load_model()
+# Function to predict sentiment
+def predict_sentiment(review_text, model, tokenizer):
+    inputs = tokenizer(review_text, padding=True, truncation=True, return_tensors="pt")
 
-# Set up class labels
-class_labels = ['Negative', 'Neutral', 'Positive']
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    inputs = inputs.to(device)
 
-# Streamlit app
-st.title("✈️ Airline Sentiment Analysis with ALBERT ✨")
-st.write("Analyze customer reviews for airline services")
-
-def predict_sentiment(text):
-    # Tokenize input
-    inputs = tokenizer(text, padding=True, truncation=True, max_length=512, return_tensors="pt")
-    
-    # Make prediction
+    model.eval()  # Set model to evaluation mode
     with torch.no_grad():
         outputs = model(**inputs)
-    
-    # Get predicted class
-    logits = outputs.logits
-    predicted_class = torch.argmax(logits).item()
-    
-    return class_labels[predicted_class], logits
+        logits = outputs.logits
+    predictions = torch.argmax(logits, dim=-1).cpu().numpy()
+    class_labels = ['Negative', 'Neutral', 'Positive']
+    return class_labels[predictions[0]]
 
-# User input
-user_input = st.text_area("Enter your airline review here:", height=150)
+# Load the model and tokenizer
+model, tokenizer = load_model_tokenizer()
 
-if st.button("Analyze Sentiment"):
-    if user_input:
-        # Get prediction
-        sentiment, logits = predict_sentiment(user_input)
-        
-        # Display result with emoji
-        emoji = ""
-        if sentiment == "Positive":
-            emoji = "😊"
-        elif sentiment == "Neutral":
-            emoji = "😐"
+# Streamlit app
+st.title('Sentiment Analysis with ALBERT')
+
+review_text = st.text_area("Enter your review here:")
+
+if st.button('Analyze Sentiment'):
+    if review_text:
+        predicted_sentiment = predict_sentiment(review_text, model, tokenizer)
+        st.write("### Prediction:")
+        if predicted_sentiment == 'Positive':
+            st.success(f"Sentiment: {predicted_sentiment} 😃")
+        elif predicted_sentiment == 'Negative':
+            st.error(f"Sentiment: {predicted_sentiment} 😞")
         else:
-            emoji = "😞"
-            
-        st.subheader(f"Predicted Sentiment: {sentiment} {emoji}")
-        
-        # Add confidence scores (optional)
-        with st.expander("See detailed confidence scores"):
-            scores = torch.nn.functional.softmax(logits, dim=1)[0]
-            for i, score in enumerate(scores):
-                st.write(f"{class_labels[i]}: {score:.2%}")
+            st.info(f"Sentiment: {predicted_sentiment} 😐")
     else:
-        st.warning("Please enter a review to analyze!")
-
-# Add some styling
-st.markdown("""
-<style>
-    .stTextArea textarea {
-        font-size: 16px;
-        line-height: 1.5;
-    }
-    .stButton button {
-        background-color: #4CAF50;
-        color: white;
-        font-weight: bold;
-        padding: 0.5rem 2rem;
-    }
-</style>
-""", unsafe_allow_html=True)
+        st.warning("Please enter a review to analyze.")
