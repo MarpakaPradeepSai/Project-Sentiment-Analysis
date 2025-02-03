@@ -1,72 +1,46 @@
 import streamlit as st
+from transformers import AlbertTokenizer, AutoModelForSequenceClassification
 import torch
-import os
-import requests
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-# Define URLs to fetch the model and tokenizer files from GitHub
-base_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/raw/main/ALBERT_Model"
+# GitHub repository details (replace with your actual repo and directory)
+repo_owner = 'MarpakaPradeepSai'  # Replace with your GitHub username
+repo_name = 'Project-Sentiment-Analysis'  # Replace with your GitHub repository name
+model_dir = 'ALBERT_Model'  # Directory in your repo where model files are located
 
-model_files = [
-    "config.json",
-    "model.safetensors",
-    "special_tokens_map.json",
-    "spiece.model",
-    "tokenizer.json",
-    "tokenizer_config.json"
-]
+# Construct the model path for GitHub
+model_path = f"https://huggingface.co/{repo_owner}/{repo_name}/tree/main/{model_dir}"
+model_path_raw = f"https://huggingface.co/{repo_owner}/{repo_name}/resolve/main/{model_dir}" # Use resolve to directly access files
 
-# Define directory where model will be saved
-model_dir = "ALBERT_Model"
+@st.cache_resource
+def load_model_tokenizer():
+    """Loads the fine-tuned ALBERT model and tokenizer from the GitHub repository."""
+    tokenizer = AlbertTokenizer.from_pretrained(model_path_raw)
+    model = AutoModelForSequenceClassification.from_pretrained(model_path_raw)
+    return model, tokenizer
 
-# Download model files from GitHub and save to the model directory
-if not os.path.exists(model_dir):
-    os.makedirs(model_dir)
+model, tokenizer = load_model_tokenizer()
 
-for file in model_files:
-    file_url = f"{base_url}/{file}"
-    file_path = os.path.join(model_dir, file)
-    
-    # If file does not exist, download it
-    if not os.path.exists(file_path):
-        print(f"Downloading {file}...")
-        response = requests.get(file_url)
-        with open(file_path, "wb") as f:
-            f.write(response.content)
-        print(f"{file} downloaded successfully.")
+sentiment_labels = {0: "Negative", 1: "Neutral", 2: "Positive"}
 
-# Load the model and tokenizer from the saved directory
-model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=3)
-tokenizer = AutoTokenizer.from_pretrained(model_dir)
-
-# Function to predict sentiment
 def predict_sentiment(text):
-    # Tokenize the input text
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    
-    # Get the model predictions
+    """Predicts the sentiment of the given text using the loaded model."""
+    inputs = tokenizer(text, padding=True, truncation=True, max_length=512, return_tensors="pt")
     with torch.no_grad():
-        logits = model(**inputs).logits
-    predictions = torch.argmax(logits, dim=-1)
-    
-    # Map the prediction to sentiment label
-    sentiment_map = {0: 'Negative', 1: 'Neutral', 2: 'Positive'}
-    sentiment = sentiment_map[predictions.item()]
-    
-    return sentiment
+        outputs = model(**inputs)
+    probabilities = torch.softmax(outputs.logits, dim=-1)
+    predicted_class_id = torch.argmax(probabilities, dim=-1).item()
+    return sentiment_labels[predicted_class_id]
 
-# Streamlit UI
-st.title("Sentiment Analysis with ALBERT")
-st.write("Enter some text, and I'll predict whether it's positive, neutral, or negative.")
+st.title("Sentiment Analysis of AirPods Reviews")
+st.write("Enter your review text below to get the sentiment analysis.")
 
-# User input
-input_text = st.text_area("Enter Review Text", "Type here...")
+review_text = st.text_area("Enter Review Text Here")
 
-# Button to predict sentiment
 if st.button("Analyze Sentiment"):
-    if input_text:
-        # Get sentiment prediction
-        sentiment = predict_sentiment(input_text)
-        st.write(f"Sentiment: **{sentiment}**")
+    if review_text:
+        with st.spinner("Analyzing sentiment..."):
+            sentiment = predict_sentiment(review_text)
+        st.write("### Predicted Sentiment:")
+        st.write(f"The sentiment of the review is: **{sentiment}**")
     else:
-        st.warning("Please enter some text for analysis.")
+        st.warning("Please enter some review text to analyze.")
