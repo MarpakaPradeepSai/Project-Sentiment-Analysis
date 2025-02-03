@@ -102,17 +102,24 @@ st.markdown(
 
 st.markdown(
     """
-    <h1 style="font-size: 41px; text-align: center;">Sentiment Analysis of AirPods Reviews</h1>
+    <h1 style="font-size: 41px; text-align: center;">Sentiment Analysis of AirPods Reviews</h1>  # Changed title to be more specific
     """,
     unsafe_allow_html=True
 )
 
-st.markdown(
-    f"""
-    <img src="https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF" alt="Apple AirPods" class="center-image" width="400">
-    """,
-    unsafe_allow_html=True
-)
+image_urls = [
+    "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
+]
+
+cols = st.columns(5) # Create 5 columns
+
+for i, url in enumerate(image_urls):
+    with cols[i]:
+        st.image(url, width=100) # Display each image in its column, adjust width as needed
 
 user_input = st.text_area("Enter your AirPods review here") # Changed text area placeholder
 
