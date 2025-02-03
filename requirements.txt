@@ -1,3 +1,5 @@
 streamlit
-transformers
-torch
+transformers==4.35.2   #  Known stable version from late 2023/early 2024
+torch==2.1.2          #  Known stable version from late 2023/early 2024
+torchvision==0.16.2     # Add torchvision, sometimes needed explicitly with torch
+torchaudio==2.1.2      # Add torchaudio, sometimes needed explicitly with torch
