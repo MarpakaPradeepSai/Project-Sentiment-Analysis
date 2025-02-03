@@ -1,41 +1,46 @@
 import streamlit as st
 from transformers import AlbertTokenizer, AutoModelForSequenceClassification
 import torch
+import requests
 
-# Path to your GitHub repository's model folder
-MODEL_PATH = './ALBERT_Model'
+# Define a function to load the model and tokenizer from GitHub
+def load_model_from_github():
+    model_url = "https://raw.githubusercontent.com/MarpakaPradeepSai/Project-Sentiment-Analysis/main/ALBERT_Model/"
+    
+    # Load model and tokenizer from the GitHub repository
+    model = AutoModelForSequenceClassification.from_pretrained(model_url)
+    tokenizer = AlbertTokenizer.from_pretrained(model_url)
+    return model, tokenizer
 
-# Load model and tokenizer from GitHub
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
-tokenizer = AlbertTokenizer.from_pretrained(MODEL_PATH)
+# Load the pre-trained model and tokenizer
+model, tokenizer = load_model_from_github()
 
 # Function to perform sentiment analysis
-def predict_sentiment(text):
+def predict_sentiment(review_text):
     # Tokenize the input text
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+    inputs = tokenizer(review_text, return_tensors="pt", truncation=True, padding=True, max_length=512)
 
-    # Get model predictions
+    # Get predictions
     with torch.no_grad():
         outputs = model(**inputs)
         logits = outputs.logits
+        predicted_class_id = torch.argmax(logits, dim=-1).item()
 
-    # Convert logits to predicted label (0: Negative, 1: Neutral, 2: Positive)
-    prediction = torch.argmax(logits, dim=-1).item()
-    
-    # Mapping sentiment back to string
-    sentiment_map = {0: 'Negative', 1: 'Neutral', 2: 'Positive'}
-    return sentiment_map[prediction]
+    # Map predicted class id to sentiment label
+    sentiment_map = {0: "Negative", 1: "Neutral", 2: "Positive"}
+    return sentiment_map[predicted_class_id]
 
-# Streamlit UI
-st.title("Sentiment Analysis with ALBERT")
-st.write("This application analyzes the sentiment of your input text using a fine-tuned ALBERT model.")
+# Set up Streamlit app interface
+st.title("Sentiment Analysis with ALBERT Model")
+st.write("Enter a review to get its sentiment (Negative, Neutral, or Positive):")
 
-# User input
-user_input = st.text_area("Enter your text here:")
+# Text input field for user to input review
+user_input = st.text_area("Review Text", height=150)
 
-if user_input:
-    # Get sentiment prediction
-    sentiment = predict_sentiment(user_input)
-    
-    # Display prediction result
-    st.write(f"Predicted Sentiment: {sentiment}")
+if st.button('Analyze Sentiment'):
+    if user_input:
+        # Get sentiment prediction
+        sentiment = predict_sentiment(user_input)
+        st.write(f"Sentiment: {sentiment}")
+    else:
+        st.warning("Please enter a review text to analyze.")
