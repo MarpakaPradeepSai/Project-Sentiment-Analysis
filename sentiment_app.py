@@ -69,6 +69,13 @@ st.markdown(
     .main {
         background-color: #F0F2F6;
     }
+    h1 {
+        color: #6a0572;
+        text-align: center;
+        font-size: 3em;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
     .stButton>button {
         background: linear-gradient(90deg, #ff8a00, #e52e71);
         color: white !important; /* Stay white always */
