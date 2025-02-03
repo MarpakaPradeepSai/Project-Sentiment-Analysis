@@ -1,29 +1,14 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
-import requests
 
-# Define URLs to fetch the model and tokenizer from your GitHub repository
-model_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/raw/main/ALBERT_Model"
+# Define the Hugging Face model URL (replace with your actual model URL)
+model_url = "https://huggingface.co/username/your_model_name"  # Replace with your Hugging Face model URL
 tokenizer_url = model_url
 
-# Load model and tokenizer from GitHub repository
-def load_model_and_tokenizer(model_url, tokenizer_url):
-    # Download model and tokenizer files
-    model_files = ["config.json", "model.safetensors", "special_tokens_map.json", "spiece.model", "tokenizer.json", "tokenizer_config.json"]
-    for file in model_files:
-        file_url = f"{model_url}/{file}"
-        response = requests.get(file_url)
-        with open(file, 'wb') as f:
-            f.write(response.content)
-    
-    # Load model and tokenizer
-    model = AutoModelForSequenceClassification.from_pretrained('./ALBERT_Model', num_labels=3)
-    tokenizer = AutoTokenizer.from_pretrained('./ALBERT_Model')
-    return model, tokenizer
-
-# Load the model and tokenizer
-model, tokenizer = load_model_and_tokenizer(model_url, tokenizer_url)
+# Load model and tokenizer from Hugging Face
+model = AutoModelForSequenceClassification.from_pretrained(model_url, num_labels=3)
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_url)
 
 # Function to predict sentiment
 def predict_sentiment(text):
