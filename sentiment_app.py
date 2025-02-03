@@ -58,14 +58,14 @@ def get_sentiment_label(probs):
     max_index = probs.argmax()
     return sentiment_mapping[max_index]
 
-# --- Function to get background color based on sentiment (original colors) ---
+# --- Function to get background color based on sentiment (slightly adjusted colors) ---
 def get_background_color(label):
     if "Positive" in label:
-        return "#C3E6CB"  # Original softer green
+        return "#E0F7FA"  # Softer, lighter cyan for positive
     elif "Neutral" in label:
-        return "#FFE8A1"  # Original softer yellow
+        return "#FFFDE7"  # Softer, lighter yellow for neutral
     else:
-        return "#F5C6CB"  # Original softer red
+        return "#FFEBEE"  # Softer, lighter red for negative
 
 # --- Streamlit app ---
 st.set_page_config(
@@ -79,54 +79,63 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Import Google Fonts - Keeping Nunito and Open Sans for general text */
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
+    /* Import Google Fonts - Using Poppins and Roboto for a modern feel */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Roboto:wght@400;500&display=swap');
 
     .main {
-        background-color: #F0F2F6; /* Original main background color */
-        font-family: 'Open Sans', sans-serif; /* Keep Open Sans for body */
+        background-color: #FAFAFA; /* Lighter background */
+        font-family: 'Roboto', sans-serif; /* Modern body font */
         color: #333;
     }
     h1 {
-        font-family: 'Nunito', sans-serif; /* Keep Nunito for title */
-        color: #6a0572; /* Original title color */
+        font-family: 'Poppins', sans-serif; /* Modern title font */
+        color: #4A148C; /* Deeper purple for title */
         text-align: center;
-        font-size: 3em; /* Original title size */
+        font-size: 2.8em; /* Slightly reduced title size */
         margin-bottom: 15px;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Original text shadow */
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Softer text shadow */
+        font-weight: 700; /* Bolder title */
     }
     .stButton>button {
-        background: linear-gradient(90deg, #ff8a00, #e52e71); /* Original button gradient */
+        background: linear-gradient(90deg, #00BCD4, #673AB7); /* Modernized button gradient */
         color: white !important;
         border: none;
-        border-radius: 25px; /* Original button border-radius */
-        padding: 10px 20px;
-        font-size: 1.2em; /* Original button font-size */
-        font-weight: bold; /* Original button font-weight */
+        border-radius: 20px; /* Slightly less rounded buttons */
+        padding: 12px 24px; /* Adjusted button padding */
+        font-size: 1.1em;
+        font-weight: 500; /* Slightly lighter button font weight */
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Original button transition */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .stButton>button:hover {
-        transform: scale(1.05); /* Original button hover transform */
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); /* Original button hover box-shadow */
+        transform: scale(1.03); /* Slightly less scale on hover */
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2); /* Softer box shadow on hover */
         color: white !important;
     }
     .prediction-box {
-        border-radius: 25px; /* Original prediction box border-radius */
-        padding: 10px; /* Original prediction box padding */
-        text-align: center; /* Original prediction box text-align */
-        font-size: 18px; /* Original prediction box font-size */
+        border-radius: 20px; /* Adjusted prediction box border-radius */
+        padding: 15px; /* Adjusted prediction box padding */
+        text-align: center;
+        font-size: 1.1em; /* Slightly larger prediction box font */
+        border: 1px solid #E0E0E0; /* Light border for prediction box */
+        margin-top: 15px; /* Add margin above prediction box */
     }
     .stTextArea textarea {
-        border-radius: 15px; /* Keep text area border-radius */
-        border: 1px solid #ced4da; /* Keep text area border */
-        padding: 10px; /* Keep text area padding */
-        background-color: #FFFFFF; /* Keep text area background */
-        box-shadow: 3px 3px 5px #9E9E9E; /* Keep text area shadow */
+        border-radius: 12px; /* Adjusted text area border-radius */
+        border: 1px solid #CED4DA;
+        padding: 12px; /* Adjusted text area padding */
+        background-color: #FFFFFF;
+        box-shadow: inset 2px 2px 5px #F0F0F0; /* Softer inset shadow for text area */
+    }
+    .stTextArea label { /* Style for the text area label */
+        font-weight: 500;
+        margin-bottom: 5px;
+        display: block;
+        color: #555; /* Darker label text */
     }
     .stTextArea textarea::placeholder {
-        color: #999; /* Light gray placeholder text - keep if desired */
-        font-style: italic; /* Italic placeholder text - keep if desired */
+        color: #AAA; /* Even lighter placeholder text */
+        font-style: italic;
     }
     """,
     unsafe_allow_html=True
@@ -135,7 +144,7 @@ st.markdown(
 # --- App Title ---
 st.markdown(
     """
-    <h1 style="font-size: 45px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
+    <h1 style="font-size: 40px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
     """,
     unsafe_allow_html=True
 )
@@ -154,26 +163,32 @@ for i, url in enumerate(image_urls):
     with cols[i]:
         st.image(url, width=100)
 
-# --- User Input Text Area ---
-user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
+# --- Main Content Area ---
+with st.container(): # Using container to group input and output
+    col1, col2 = st.columns([3, 1]) # Adjust column widths as needed
 
-# --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"): # Original button text and icon
-    if user_input:
-        with st.spinner('Analyzing sentiment...'): # Keep spinner
-            time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
-            sentiment_probs = predict_sentiment(user_input)
-            sentiment_label = get_sentiment_label(sentiment_probs[0])
-            background_color = get_background_color(sentiment_label)
+    with col1:
+        user_input = st.text_area("Enter your AirPods review here") # Label is now placeholder
 
-        st.divider() # Keep divider
-        st.markdown(
-            f"""
-            <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    else:
-        st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
+    with col2:
+        st.write("") # Spacer
+        st.write("") # Spacer
+        if st.button("🔍 Analyze Sentiment"): # Button in the second column
+            if user_input:
+                with st.spinner('Analyzing sentiment...'): # Keep spinner
+                    time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
+                    sentiment_probs = predict_sentiment(user_input)
+                    sentiment_label = get_sentiment_label(sentiment_probs[0])
+                    background_color = get_background_color(sentiment_label)
+
+                st.divider() # Keep divider
+                st.markdown(
+                    f"""
+                    <div style="background-color:{background_color};" class="prediction-box">
+                        <h3><span style="font-weight: 500;">Sentiment</span>: {sentiment_label}</h3>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+                st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
