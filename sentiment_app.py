@@ -103,6 +103,12 @@ st.markdown(
         margin-left: auto;
         margin-right: auto;
     }
+    /* Curvy text area */
+    .stTextArea textarea {
+        border-radius: 15px; /* Adjust the value to control the curviness */
+        border: 1px solid #ced4da; /* Optional: Add a border for better visibility */
+        padding: 10px; /* Optional: Add some padding inside the text area */
+    }
     </style>
     """,
     unsafe_allow_html=True
