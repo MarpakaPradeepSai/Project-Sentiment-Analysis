@@ -132,7 +132,7 @@ if st.button("🔍 Analyze Sentiment"): # Changed button text and icon
         st.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                <h3>Sentiment: {sentiment_label}</h3>
+                <h3><strong>Sentiment</strong>: {sentiment_label}</h3>
             </div>
             """,
             unsafe_allow_html=True
