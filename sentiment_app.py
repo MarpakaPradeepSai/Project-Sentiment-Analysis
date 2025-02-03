@@ -2,51 +2,38 @@ import streamlit as st
 from transformers import AlbertTokenizer, AutoModelForSequenceClassification
 import torch
 
-# Load fine-tuned model and tokenizer
-try:
-    model_dir = './ALBERT_Model'  # Assuming the ALBERT_Model directory is in the same directory as your streamlit script
-    tokenizer = AlbertTokenizer.from_pretrained(model_dir)
-    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-    st.success("Model and tokenizer loaded successfully!")
-except Exception as e:
-    st.error(f"Error loading model or tokenizer: {e}")
-    st.stop()
+# Update the MODEL_PATH to point to your local directory
+MODEL_PATH = '/path/to/Project-Sentiment-Analysis/ALBERT_Model'
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+tokenizer = AlbertTokenizer.from_pretrained(MODEL_PATH)
 
-# Sentiment mapping dictionary
-sentiment_labels = {0: "Negative", 1: "Neutral", 2: "Positive"}
-
+# Function to perform sentiment analysis
 def predict_sentiment(text):
-    """
-    Predicts the sentiment of the given text using the loaded ALBERT model.
+    # Tokenize the input text
+    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
 
-    Args:
-        text (str): The input text for sentiment analysis.
-
-    Returns:
-        str: The predicted sentiment label (e.g., "Positive", "Negative", "Neutral").
-    """
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    # Get model predictions
     with torch.no_grad():
         outputs = model(**inputs)
-    logits = outputs.logits
-    predicted_class_id = torch.argmax(logits, dim=-1).item()
-    return sentiment_labels[predicted_class_id]
+        logits = outputs.logits
 
-# Streamlit app
-st.title("Sentiment Analysis with Fine-tuned ALBERT Model")
+    # Convert logits to predicted label (0: Negative, 1: Neutral, 2: Positive)
+    prediction = torch.argmax(logits, dim=-1).item()
+    
+    # Mapping sentiment back to string
+    sentiment_map = {0: 'Negative', 1: 'Neutral', 2: 'Positive'}
+    return sentiment_map[prediction]
 
-user_input = st.text_area("Enter your review text here:")
+# Streamlit UI
+st.title("Sentiment Analysis with ALBERT")
+st.write("This application analyzes the sentiment of your input text using a fine-tuned ALBERT model.")
 
-if st.button("Analyze Sentiment"):
-    if user_input:
-        with st.spinner("Analyzing sentiment..."):
-            predicted_sentiment = predict_sentiment(user_input)
-        st.write("### Predicted Sentiment:")
-        if predicted_sentiment == "Positive":
-            st.success(f"Positive 😊")
-        elif predicted_sentiment == "Negative":
-            st.error(f"Negative 😠")
-        else:
-            st.info(f"Neutral 😐")
-    else:
-        st.warning("Please enter some text to analyze.")
+# User input
+user_input = st.text_area("Enter your text here:")
+
+if user_input:
+    # Get sentiment prediction
+    sentiment = predict_sentiment(user_input)
+    
+    # Display prediction result
+    st.write(f"Predicted Sentiment: {sentiment}")
