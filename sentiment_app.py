@@ -151,4 +151,4 @@ if st.button("🔍 Analyze Sentiment"): # Changed button text and icon
             unsafe_allow_html=True
         )
     else:
-        st.error("⚠️ Please enter a review to analyze. ⚠️") # Added warning emoji to error message
+        st.error("⚠️ Please enter a review to analyze.") # Added warning emoji to error message
