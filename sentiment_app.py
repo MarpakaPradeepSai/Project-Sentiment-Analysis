@@ -57,7 +57,7 @@ def get_background_color(label):
 
 # Streamlit app
 st.set_page_config(
-    page_title="Sentiment Analysis with ALBERT", # Changed title
+    page_title="Sentiment Analysis of AirPods Reviews", # Changed title to be more specific
     page_icon=":mag:",
     layout="centered",
     initial_sidebar_state="expanded",
@@ -102,19 +102,19 @@ st.markdown(
 
 st.markdown(
     """
-    <h1 style="font-size: 41px; text-align: center;">Sentiment Analysis with ALBERT</h1>  # Changed title
+    <h1 style="font-size: 41px; text-align: center;">Sentiment Analysis of AirPods Reviews</h1>  # Changed title to be more specific
     """,
     unsafe_allow_html=True
 )
 
 st.markdown(
-    """
-    <img src="https://miro.medium.com/v2/resize:1100/format:webp/1*Q4cUSrQz9IZoQk14p1w9HA.png" alt="ALBERT Sentiment Analysis" class="center-image" width="400"> # Changed image to represent ALBERT
+    f"""
+    <img src="https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF" alt="Apple AirPods" class="center-image" width="400">
     """,
     unsafe_allow_html=True
 )
 
-user_input = st.text_area("Enter text to analyze")
+user_input = st.text_area("Enter your AirPods review here") # Changed text area placeholder
 
 if st.button("Analyze"):
     if user_input:
