@@ -116,7 +116,7 @@ st.markdown(
 
 st.markdown(
     """
-    <h1 style="font-size: 47px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
+    <h1 style="font-size: 46px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
     """,
     unsafe_allow_html=True
 )
