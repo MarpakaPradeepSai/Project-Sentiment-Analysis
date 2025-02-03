@@ -4,7 +4,7 @@ import torch
 import requests
 import os
 import time  # For adding a loading spinner
-import random # For random emoji placement
+import random # For randomizing emoji placement and animation delay
 
 # --- Function to download model files from GitHub ---
 def download_file_from_github(url, local_path):
@@ -68,42 +68,24 @@ def get_background_color(label):
     else:
         return "#F5C6CB"  # Original softer red
 
-# --- Function to get floating emojis based on sentiment ---
-def get_floating_emojis(label):
+# --- Function to generate floating emojis HTML ---
+def generate_floating_emojis(label):
+    emoji = ""
     if "Positive" in label:
-        emojis = ["🎉", "🌟", "🎈", "👍"] # More positive emojis for floating effect
+        emoji = "😊"
     elif "Neutral" in label:
-        emojis = ["🤔", "💭", "🧘"] # Neutral/thinking emojis
+        emoji = "😐"
     else:
-        emojis = ["💔", "😔", "😞", "👎", "😠"] # More negative emojis
-    return emojis
+        emoji = "😡"
 
-# --- Function to generate HTML for floating emojis ---
-def generate_floating_emoji_html(emojis, sentiment_label):
-    emoji_spans = ""
-    for emoji in emojis:
-        # Randomize initial position and animation delay for each emoji
-        start_x = random.uniform(10, 90) # Random horizontal start position within the box
-        start_y = random.uniform(10, 90) # Random vertical start position within the box
-        animation_delay = random.uniform(0, 2) # Random delay to stagger animation
-
-        emoji_spans += f"""
-            <span class="floating-emoji" style="
-                left: {start_x}%;
-                top: {start_y}%;
-                animation-delay: {animation_delay}s;
-            ">{emoji}</span>
-        """
-
-    background_color = get_background_color(sentiment_label)
-    return f"""
-        <div style="position: relative; background-color:{background_color}; padding: 20px; border-radius: 25px; text-align: center; overflow: hidden;" class="prediction-box">
-            <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
-            <div class="emoji-container">
-                {emoji_spans}
-            </div>
-        </div>
-    """
+    emojis_html = '<div class="floating-emojis">'
+    for i in range(3): # Generate a few emojis
+        # Randomize horizontal position and animation delay slightly for each emoji
+        start_left = 40 + random.randint(0, 20) # Start left position between 40% and 60%
+        animation_delay = random.uniform(0, 0.5) # Slight delay for each emoji to start
+        emojis_html += f'<span class="floating-emoji" style="left: {start_left}%; animation-delay: {animation_delay}s;">{emoji}</span>'
+    emojis_html += '</div>'
+    return emojis_html
 
 
 # --- Streamlit app ---
@@ -118,93 +100,86 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Import Google Fonts */
+    /* Import Google Fonts - Keeping Nunito and Open Sans for general text */
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
 
     .main {
-        background-color: #F0F2F6;
-        font-family: 'Open Sans', sans-serif;
+        background-color: #F0F2F6; /* Original main background color */
+        font-family: 'Open Sans', sans-serif; /* Keep Open Sans for body */
         color: #333;
     }
     h1 {
-        font-family: 'Nunito', sans-serif;
-        color: #6a0572;
+        font-family: 'Nunito', sans-serif; /* Keep Nunito for title */
+        color: #6a0572; /* Original title color */
         text-align: center;
-        font-size: 3em;
+        font-size: 3em; /* Original title size */
         margin-bottom: 15px;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Original text shadow */
     }
     .stButton>button {
-        background: linear-gradient(90deg, #ff8a00, #e52e71);
+        background: linear-gradient(90deg, #ff8a00, #e52e71); /* Original button gradient */
         color: white !important;
         border: none;
-        border-radius: 25px;
+        border-radius: 25px; /* Original button border-radius */
         padding: 10px 20px;
-        font-size: 1.2em;
-        font-weight: bold;
+        font-size: 1.2em; /* Original button font-size */
+        font-weight: bold; /* Original button font-weight */
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Original button transition */
     }
     .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        transform: scale(1.05); /* Original button hover transform */
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); /* Original button hover box-shadow */
         color: white !important;
     }
     .prediction-box {
-        border-radius: 25px;
-        padding: 10px;
-        text-align: center;
-        font-size: 18px;
-        position: relative; /* Needed for absolute positioning of emojis */
+        border-radius: 25px; /* Original prediction box border-radius */
+        padding: 10px; /* Original prediction box padding */
+        text-align: center; /* Original prediction box text-align */
+        font-size: 18px; /* Original prediction box font-size */
+        position: relative; /* Required for absolute positioning of floating emojis */
         overflow: hidden; /* Clip emojis if they go outside the box */
     }
     .stTextArea textarea {
-        border-radius: 15px;
-        border: 1px solid #ced4da;
-        padding: 10px;
-        background-color: #FFFFFF;
-        box-shadow: 3px 3px 5px #9E9E9E;
+        border-radius: 15px; /* Keep text area border-radius */
+        border: 1px solid #ced4da; /* Keep text area border */
+        padding: 10px; /* Keep text area padding */
+        background-color: #FFFFFF; /* Keep text area background */
+        box-shadow: 3px 3px 5px #9E9E9E; /* Keep text area shadow */
     }
     .stTextArea textarea::placeholder {
-        color: #999;
-        font-style: italic;
+        color: #999; /* Light gray placeholder text - keep if desired */
+        font-style: italic; /* Italic placeholder text - keep if desired */
     }
 
-    .emoji-container {
-        position: absolute; /* Container to hold emojis relative to prediction-box */
-        top: 0;
+    /* Floating Emojis CSS */
+    .floating-emojis {
+        position: absolute;
+        top: 0; /* Start from the top of the prediction box */
         left: 0;
         width: 100%;
         height: 100%;
-        pointer-events: none; /* Make sure emojis don't interfere with clicks */
+        pointer-events: none; /* To prevent emojis from interfering with clicks */
     }
 
     .floating-emoji {
-        position: absolute; /* Float emojis within emoji-container */
-        font-size: 20px; /* Adjust emoji size */
-        animation: floatEmoji 3s linear infinite; /* Apply floating animation */
-        opacity: 0.8; /* Make emojis slightly transparent */
-        pointer-events: none; /* Prevent emoji from being interactive */
+        position: absolute;
+        bottom: -10px; /* Start slightly below the prediction box */
+        font-size: 2em; /* Adjust size as needed */
+        opacity: 0; /* Start invisible */
+        animation: floatUpAndFade 1.5s ease-out forwards; /* Animation */
     }
 
-    @keyframes floatEmoji {
+    @keyframes floatUpAndFade {
         0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 0;
-        }
-        10%, 90% {
-            opacity: 0.8;
-        }
-        50% {
-            transform: translateY(-10px) rotate(20deg); /* Adjust float height and rotation */
+            transform: translateY(20px); /* Start position below */
+            opacity: 1;
         }
         100% {
-            transform: translateY(0) rotate(0deg);
+            transform: translateY(-80px); /* End position above */
             opacity: 0;
         }
     }
-
-
     """,
     unsafe_allow_html=True
 )
@@ -241,12 +216,18 @@ if st.button("🔍 Analyze Sentiment"): # Original button text and icon
             time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
-            floating_emojis = get_floating_emojis(sentiment_label)
-            floating_emoji_html = generate_floating_emoji_html(floating_emojis, sentiment_label)
-
+            background_color = get_background_color(sentiment_label)
+            floating_emojis_html = generate_floating_emojis(sentiment_label) # Generate emojis HTML
 
         st.divider() # Keep divider
-        st.markdown(floating_emoji_html, unsafe_allow_html=True)
-
+        st.markdown(
+            f"""
+            <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
+                {floating_emojis_html} <!-- Insert floating emojis here -->
+                <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     else:
         st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
