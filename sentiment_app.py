@@ -3,8 +3,8 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
 # Load model and tokenizer from your GitHub repository
-model_url = "https://huggingface.co/your_github_repo/ALBERT_Model"  # Replace with the actual GitHub model URL
-tokenizer_url = "https://huggingface.co/your_github_repo/ALBERT_Model"  # Same here for the tokenizer
+model_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/tree/main/ALBERT_Model"  # Replace with the actual GitHub model URL
+tokenizer_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/tree/main/ALBERT_Model"  # Same here for the tokenizer
 
 # Load model and tokenizer
 model = AutoModelForSequenceClassification.from_pretrained(model_url, num_labels=3)
