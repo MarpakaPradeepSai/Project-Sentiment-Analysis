@@ -52,7 +52,7 @@ def get_sentiment_label(probs):
     sentiment_label_key = sentiment_labels[max_index]
     sentiment_text_label = sentiment_labels[max_index] # Just the text label (e.g., "Positive")
     emoji = sentiment_emojis[sentiment_label_key]
-    background_emojis = emoji * 15  # Increased emoji count for better fill
+    background_emojis = emoji * 45  # Increased emoji count significantly
     return sentiment_text_label, background_emojis # Return both text label and background emojis
 
 # Function to get background color based on sentiment
@@ -120,14 +120,16 @@ st.markdown(
         width: 100%;
         height: 100%;
         display: grid; /* Use grid layout */
+        grid-template-columns: repeat(auto-fit, minmax(1em, 1fr)); /* Responsive columns */
         grid-template-rows: repeat(3, auto); /* 3 rows, auto height */
-        justify-items: center; /* Center emojis horizontally in each cell */
+        /* justify-items: center;  Remove horizontal centering */
         align-items: center; /* Center emojis vertically in each cell */
         font-size: 40px; /* Reduced emoji size */
         opacity: 0.3; /* Adjust transparency */
         z-index: 0; /* Background layer */
         pointer-events: none; /* Make sure emojis don't interfere with text interaction */
-        white-space: pre-line; /* Preserve line breaks */
+        /* white-space: pre-line; Remove manual line breaks */
+        word-break: break-all; /* Break words to fill space */
     }
     .center-image {
         display: block;
@@ -167,17 +169,11 @@ if st.button("🔍 Analyze Sentiment"): # Changed button text and icon
         sentiment_probs = predict_sentiment(user_input)
         sentiment_label_text, background_emojis = get_sentiment_label(sentiment_probs[0]) # Get both
         background_color = get_background_color(sentiment_label_text)  # Use text label for color
-        # Inserting line breaks into background emojis for rows
-        emojis_with_breaks = ""
-        for i, emoji in enumerate(background_emojis):
-            emojis_with_breaks += emoji
-            if (i + 1) % 5 == 0 and (i + 1) < len(background_emojis): # Break after every 5 emojis
-                emojis_with_breaks += "\n" # Line break
 
         st.markdown(
             f"""
             <div class="prediction-box" style="background-color:{background_color};">
-                <div class="sentiment-emojis-bg">{emojis_with_breaks}</div>
+                <div class="sentiment-emojis-bg">{background_emojis}</div>
                 <div class="sentiment-text">
                     <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label_text}</h3>
                 </div>
