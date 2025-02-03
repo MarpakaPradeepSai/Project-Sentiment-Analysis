@@ -7,11 +7,11 @@ import time  # For adding a loading spinner
 
 # --- Function to download model files from GitHub ---
 def download_file_from_github(url, local_path):
-    response = requests.get(url, stream=True)  # Use stream=True for potentially large files
+    response = requests.get(url, stream=True) # Use stream=True for potentially large files
     if response.status_code == 200:
         with open(local_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):  # Iterate over chunks
-                if chunk:  # filter out keep-alive new chunks
+            for chunk in response.iter_content(chunk_size=8192): # Iterate over chunks
+                if chunk: # filter out keep-alive new chunks
                     f.write(chunk)
     else:
         st.error(f"Failed to download {url}: Status code {response.status_code}")
@@ -27,7 +27,7 @@ if not os.path.exists(model_dir):
 
 # --- Download each file if model directory is empty or files are missing ---
 if not os.listdir(model_dir) or any(not os.path.exists(os.path.join(model_dir, file)) for file in files):
-    with st.spinner('Downloading and loading model files...'):  # Show spinner while downloading
+    with st.spinner('Downloading and loading model files...'): # Show spinner while downloading
         for file in files:
             download_file_from_github(f"{repo_url}/{file}", os.path.join(model_dir, file))
 
@@ -35,7 +35,7 @@ if not os.listdir(model_dir) or any(not os.path.exists(os.path.join(model_dir, f
         try:
             tokenizer = AlbertTokenizer.from_pretrained(model_dir)
             model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=3)
-            st.success("Model files downloaded and loaded successfully!")  # Success message after loading
+            st.success("Model files downloaded and loaded successfully!") # Success message after loading
         except Exception as e:
             st.error(f"Error loading model after download: {e}")
 else:
@@ -54,7 +54,7 @@ def predict_sentiment(text):
 
 # --- Function to map probabilities to sentiment labels and emojis ---
 def get_sentiment_label(probs):
-    sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"]  # Original emojis
+    sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"] # Original emojis
     max_index = probs.argmax()
     return sentiment_mapping[max_index]
 
@@ -128,27 +128,6 @@ st.markdown(
         color: #999; /* Light gray placeholder text - keep if desired */
         font-style: italic; /* Italic placeholder text - keep if desired */
     }
-
-    /* Floating Emojis Animation */
-    @keyframes float {
-        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-    }
-    
-    .emoji-container {
-        position: relative;
-        height: 100px;
-        margin: 20px 0;
-    }
-    
-    .emoji-float {
-        position: absolute;
-        animation: float 2s ease-out forwards;
-        font-size: 24px;
-        opacity: 1;
-        pointer-events: none;
-    }
-    </style>
     """,
     unsafe_allow_html=True
 )
@@ -176,18 +155,18 @@ for i, url in enumerate(image_urls):
         st.image(url, width=100)
 
 # --- User Input Text Area ---
-user_input = st.text_area("Enter your AirPods review here")  # Original placeholder, removed bold label
+user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
 
 # --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"):  # Original button text and icon
+if st.button("🔍 Analyze Sentiment"): # Original button text and icon
     if user_input:
-        with st.spinner('Analyzing sentiment...'):  # Keep spinner
-            time.sleep(0.5)  # Simulate processing time, remove in real use if fast enough
+        with st.spinner('Analyzing sentiment...'): # Keep spinner
+            time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
             background_color = get_background_color(sentiment_label)
 
-        st.divider()  # Keep divider
+        st.divider() # Keep divider
         st.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
@@ -196,26 +175,5 @@ if st.button("🔍 Analyze Sentiment"):  # Original button text and icon
             """,
             unsafe_allow_html=True
         )
-
-        # Determine emoji based on sentiment
-        if "Positive" in sentiment_label:
-            emoji = "😊"
-        elif "Neutral" in sentiment_label:
-            emoji = "😐"
-        else:
-            emoji = "😡"
-
-        # Display floating emojis
-        emoji_html = f"""
-        <div class="emoji-container">
-            <span class="emoji-float" style="left: 10%; animation-delay: 0s;">{emoji}</span>
-            <span class="emoji-float" style="left: 30%; animation-delay: 0.3s;">{emoji}</span>
-            <span class="emoji-float" style="left: 50%; animation-delay: 0.6s;">{emoji}</span>
-            <span class="emoji-float" style="left: 70%; animation-delay: 0.9s;">{emoji}</span>
-            <span class="emoji-float" style="left: 90%; animation-delay: 1.2s;">{emoji}</span>
-        </div>
-        """
-        st.markdown(emoji_html, unsafe_allow_html=True)
-        
     else:
-        st.error("⚠️ Please enter a review to analyze.")
+        st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
