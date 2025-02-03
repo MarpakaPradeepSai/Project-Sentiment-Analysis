@@ -4,6 +4,7 @@ import torch
 import requests
 import os
 import time  # For adding a loading spinner
+import random # For randomizing emoji position
 
 # --- Function to download model files from GitHub ---
 def download_file_from_github(url, local_path):
@@ -53,11 +54,10 @@ def predict_sentiment(text):
     return probs.detach().numpy()
 
 # --- Function to map probabilities to sentiment labels and emojis ---
-def get_sentiment_label_and_emoji(probs):
-    sentiment_labels = ["Negative", "Neutral", "Positive"]
-    sentiment_emojis = ["😡", "😐", "😊"]
+def get_sentiment_label(probs):
+    sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"] # Original emojis
     max_index = probs.argmax()
-    return sentiment_labels[max_index], sentiment_emojis[max_index]
+    return sentiment_mapping[max_index]
 
 # --- Function to get background color based on sentiment (original colors) ---
 def get_background_color(label):
@@ -114,11 +114,11 @@ st.markdown(
     }
     .prediction-box {
         border-radius: 25px; /* Original prediction box border-radius */
-        padding: 20px; /* Increased padding for emoji space */
+        padding: 10px; /* Original prediction box padding */
         text-align: center; /* Original prediction box text-align */
         font-size: 18px; /* Original prediction box font-size */
-        position: relative; /* Make it relative for emoji positioning */
-        overflow: hidden; /* Clip emojis if they go outside */
+        position: relative; /* Needed for absolute positioning of emoji */
+        overflow: hidden; /* Clip emojis that go outside the box */
     }
     .stTextArea textarea {
         border-radius: 15px; /* Keep text area border-radius */
@@ -134,23 +134,33 @@ st.markdown(
 
     /* Floating Emoji Styles */
     .floating-emoji {
-        position: absolute;
-        font-size: 2.5em; /* Larger emoji size */
-        animation: float-motion 3s infinite alternate; /* Apply floating animation */
+        position: absolute; /* Positioned relative to prediction-box */
+        font-size: 2em; /* Adjust emoji size */
+        animation: float-anim 3s ease-in-out infinite; /* Floating animation */
+        opacity: 0.8; /* Make emojis slightly transparent */
     }
 
-    /* Keyframes for floating animation */
-    @keyframes float-motion {
-        0% { transform: translateY(0); opacity: 0.8; }
-        100% { transform: translateY(-15px); opacity: 1; }
+    .emoji-negative {
+        top: -10px; /* Adjust vertical position for negative emoji */
+        left: 10px; /* Adjust horizontal position for negative emoji */
     }
 
-    /* Position emojis based on sentiment - Adjust positions as needed */
-    .emoji-positive { top: -15px; left: 20px; } /* Top left for positive */
-    .emoji-neutral { top: -10px; right: 50%; transform: translateX(50%); } /* Top center for neutral */
-    .emoji-negative { bottom: 5px; right: 20px; } /* Bottom right for negative */
+    .emoji-neutral {
+        bottom: -5px; /* Adjust vertical position for neutral emoji */
+        right: 20px; /* Adjust horizontal position for neutral emoji */
+    }
+
+    .emoji-positive {
+        top: -20px; /* Adjust vertical position for positive emoji */
+        right: 10px; /* Adjust horizontal position for positive emoji */
+    }
 
 
+    @keyframes float-anim {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-10px); } /* Adjust float height */
+        100% { transform: translateY(0); }
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -187,15 +197,17 @@ if st.button("🔍 Analyze Sentiment"): # Original button text and icon
         with st.spinner('Analyzing sentiment...'): # Keep spinner
             time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
             sentiment_probs = predict_sentiment(user_input)
-            sentiment_label, sentiment_emoji = get_sentiment_label_and_emoji(sentiment_probs[0]) # Get label and emoji separately
-            background_color = get_background_color(sentiment_label)
+            sentiment_label_full = get_sentiment_label(sentiment_probs[0]) # Get label with emoji
+            sentiment_label_text = sentiment_label_full.split(" ")[0] # Extract text part (e.g., "Negative")
+            sentiment_emoji = sentiment_label_full.split(" ")[1] # Extract emoji part (e.g., "😡")
+            background_color = get_background_color(sentiment_label_text)
 
         st.divider() # Keep divider
         st.markdown(
             f"""
-            <div style="background-color:{background_color};" class="prediction-box">
-                <h3 style="margin-bottom: 0.5em;"><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
-                <div class="floating-emoji emoji-{sentiment_label.lower()}">{sentiment_emoji}</div>
+            <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
+                <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label_text}</h3>
+                <div class="floating-emoji emoji-{sentiment_label_text.lower()}">{sentiment_emoji}</div>
             </div>
             """,
             unsafe_allow_html=True
