@@ -4,7 +4,6 @@ import torch
 import requests
 import os
 import time  # For adding a loading spinner
-import random # For randomizing emoji placement and animation delay
 
 # --- Function to download model files from GitHub ---
 def download_file_from_github(url, local_path):
@@ -54,10 +53,11 @@ def predict_sentiment(text):
     return probs.detach().numpy()
 
 # --- Function to map probabilities to sentiment labels and emojis ---
-def get_sentiment_label(probs):
-    sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"] # Original emojis
+def get_sentiment_label_and_emoji(probs):
+    sentiment_labels = ["Negative", "Neutral", "Positive"]
+    sentiment_emojis = ["😡", "😐", "😊"]
     max_index = probs.argmax()
-    return sentiment_mapping[max_index]
+    return sentiment_labels[max_index], sentiment_emojis[max_index]
 
 # --- Function to get background color based on sentiment (original colors) ---
 def get_background_color(label):
@@ -68,26 +68,6 @@ def get_background_color(label):
     else:
         return "#F5C6CB"  # Original softer red
 
-# --- Function to generate floating emojis HTML ---
-def generate_floating_emojis(label):
-    emoji = ""
-    if "Positive" in label:
-        emoji = "😊"
-    elif "Neutral" in label:
-        emoji = "😐"
-    else:
-        emoji = "😡"
-
-    emojis_html = '<div class="floating-emojis">'
-    for i in range(3): # Generate a few emojis
-        # Randomize horizontal position and animation delay slightly for each emoji
-        start_left = 40 + random.randint(0, 20) # Start left position between 40% and 60%
-        animation_delay = random.uniform(0, 0.5) # Slight delay for each emoji to start
-        emojis_html += f'<span class="floating-emoji" style="left: {start_left}%; animation-delay: {animation_delay}s;">{emoji}</span>'
-    emojis_html += '</div>'
-    return emojis_html
-
-
 # --- Streamlit app ---
 st.set_page_config(
     page_title="AirPods Review Sentiment Analyzer",
@@ -96,7 +76,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- Custom CSS for a more attractive look ---
+# --- Custom CSS for a more attractive look and floating emojis ---
 st.markdown(
     """
     <style>
@@ -134,11 +114,11 @@ st.markdown(
     }
     .prediction-box {
         border-radius: 25px; /* Original prediction box border-radius */
-        padding: 10px; /* Original prediction box padding */
+        padding: 20px; /* Increased padding for emoji space */
         text-align: center; /* Original prediction box text-align */
         font-size: 18px; /* Original prediction box font-size */
-        position: relative; /* Required for absolute positioning of floating emojis */
-        overflow: hidden; /* Clip emojis if they go outside the box */
+        position: relative; /* Make it relative for emoji positioning */
+        overflow: hidden; /* Clip emojis if they go outside */
     }
     .stTextArea textarea {
         border-radius: 15px; /* Keep text area border-radius */
@@ -152,34 +132,26 @@ st.markdown(
         font-style: italic; /* Italic placeholder text - keep if desired */
     }
 
-    /* Floating Emojis CSS */
-    .floating-emojis {
-        position: absolute;
-        top: 0; /* Start from the top of the prediction box */
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none; /* To prevent emojis from interfering with clicks */
-    }
-
+    /* Floating Emoji Styles */
     .floating-emoji {
         position: absolute;
-        bottom: -10px; /* Start slightly below the prediction box */
-        font-size: 2em; /* Adjust size as needed */
-        opacity: 0; /* Start invisible */
-        animation: floatUpAndFade 1.5s ease-out forwards; /* Animation */
+        font-size: 2.5em; /* Larger emoji size */
+        animation: float-motion 3s infinite alternate; /* Apply floating animation */
     }
 
-    @keyframes floatUpAndFade {
-        0% {
-            transform: translateY(20px); /* Start position below */
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-80px); /* End position above */
-            opacity: 0;
-        }
+    /* Keyframes for floating animation */
+    @keyframes float-motion {
+        0% { transform: translateY(0); opacity: 0.8; }
+        100% { transform: translateY(-15px); opacity: 1; }
     }
+
+    /* Position emojis based on sentiment - Adjust positions as needed */
+    .emoji-positive { top: -15px; left: 20px; } /* Top left for positive */
+    .emoji-neutral { top: -10px; right: 50%; transform: translateX(50%); } /* Top center for neutral */
+    .emoji-negative { bottom: 5px; right: 20px; } /* Bottom right for negative */
+
+
+    </style>
     """,
     unsafe_allow_html=True
 )
@@ -209,26 +181,21 @@ for i, url in enumerate(image_urls):
 # --- User Input Text Area ---
 user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
 
-# --- Placeholder for Sentiment Result ---
-prediction_placeholder = st.empty() # Create an empty placeholder
-
 # --- Analyze Sentiment Button ---
 if st.button("🔍 Analyze Sentiment"): # Original button text and icon
     if user_input:
         with st.spinner('Analyzing sentiment...'): # Keep spinner
             time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
             sentiment_probs = predict_sentiment(user_input)
-            sentiment_label = get_sentiment_label(sentiment_probs[0])
+            sentiment_label, sentiment_emoji = get_sentiment_label_and_emoji(sentiment_probs[0]) # Get label and emoji separately
             background_color = get_background_color(sentiment_label)
-            floating_emojis_html = generate_floating_emojis(sentiment_label) # Generate emojis HTML
 
         st.divider() # Keep divider
-        # Update the placeholder with the new markdown content
-        prediction_placeholder.markdown(
+        st.markdown(
             f"""
-            <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                {floating_emojis_html} <!-- Insert floating emojis here -->
-                <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
+            <div style="background-color:{background_color};" class="prediction-box">
+                <h3 style="margin-bottom: 0.5em;"><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
+                <div class="floating-emoji emoji-{sentiment_label.lower()}">{sentiment_emoji}</div>
             </div>
             """,
             unsafe_allow_html=True
