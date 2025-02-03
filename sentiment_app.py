@@ -139,8 +139,6 @@ st.markdown(
         font-size: 18px; /* Original prediction box font-size */
         position: relative; /* Required for absolute positioning of floating emojis */
         overflow: hidden; /* Clip emojis if they go outside the box */
-        margin-top: 15px; /* Add some margin above the prediction box for spacing */
-        margin-bottom: 15px; /* Add some margin below the prediction box for spacing */
     }
     .stTextArea textarea {
         border-radius: 15px; /* Keep text area border-radius */
@@ -213,7 +211,6 @@ user_input = st.text_area("Enter your AirPods review here") # Original placehold
 
 # --- Placeholder for Sentiment Result ---
 prediction_placeholder = st.empty() # Create an empty placeholder
-st.divider() # Place the divider here, outside the placeholder
 
 # --- Analyze Sentiment Button ---
 if st.button("🔍 Analyze Sentiment"): # Original button text and icon
@@ -225,6 +222,7 @@ if st.button("🔍 Analyze Sentiment"): # Original button text and icon
             background_color = get_background_color(sentiment_label)
             floating_emojis_html = generate_floating_emojis(sentiment_label) # Generate emojis HTML
 
+        st.divider() # Keep divider
         # Update the placeholder with the new markdown content
         prediction_placeholder.markdown(
             f"""
@@ -237,4 +235,3 @@ if st.button("🔍 Analyze Sentiment"): # Original button text and icon
         )
     else:
         st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
-        prediction_placeholder.empty() # Optionally clear the placeholder if there's an error
