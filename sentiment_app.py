@@ -108,6 +108,8 @@ st.markdown(
         border-radius: 15px; /* Adjust the value to control the curviness */
         border: 1px solid #ced4da; /* Optional: Add a border for better visibility */
         padding: 10px; /* Optional: Add some padding inside the text area */
+        background-color: #FFFFFF; /* Add a white background */
+        box-shadow: 3px 3px 5px #9E9E9E; /* Optional: Add a subtle shadow */
     }
     </style>
     """,
@@ -135,7 +137,7 @@ for i, url in enumerate(image_urls):
     with cols[i]:
         st.image(url, width=100) # Display each image in its column, adjust width as needed
 
-user_input = st.text_area("Enter your AirPods review here") # Changed text area placeholder
+user_input = st.text_area("Enter your AirPods review here", height=150) # Changed text area placeholder, added height for better visibility
 
 if st.button("🔍 Analyze Sentiment"): # Changed button text and icon
     if user_input:
