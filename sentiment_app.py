@@ -137,7 +137,7 @@ for i, url in enumerate(image_urls):
     with cols[i]:
         st.image(url, width=100) # Display each image in its column, adjust width as needed
 
-user_input = st.text_area("Enter your AirPods review here", height=150) # Changed text area placeholder, added height for better visibility
+user_input = st.text_area("Enter your AirPods review here") # Changed text area placeholder to default size
 
 if st.button("🔍 Analyze Sentiment"): # Changed button text and icon
     if user_input:
