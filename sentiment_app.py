@@ -207,31 +207,29 @@ for i, url in enumerate(image_urls):
         st.image(url, width=100)
 
 # --- User Input Text Area ---
-user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
+user_input = st.text_area("Enter your AirPods review here")
 
-# --- Placeholder for Sentiment Result ---
-prediction_placeholder = st.empty() # Create an empty placeholder
+st.divider() # Place the divider BEFORE creating the placeholder
+prediction_placeholder = st.empty() # Create the placeholder AFTER the divider
 
 # --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"): # Original button text and icon
+if st.button("🔍 Analyze Sentiment"):
     if user_input:
-        with st.spinner('Analyzing sentiment...'): # Keep spinner
-            time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
+        with st.spinner('Analyzing sentiment...'):
+            time.sleep(0.5)
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
             background_color = get_background_color(sentiment_label)
-            floating_emojis_html = generate_floating_emojis(sentiment_label) # Generate emojis HTML
+            floating_emojis_html = generate_floating_emojis(sentiment_label)
 
-        st.divider() # Keep divider
-        # Update the placeholder with the new markdown content
         prediction_placeholder.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                {floating_emojis_html} <!-- Insert floating emojis here -->
+                {floating_emojis_html}
                 <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
             </div>
             """,
             unsafe_allow_html=True
         )
     else:
-        st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
+        st.error("⚠️ Please enter a review to analyze.")
