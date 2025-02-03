@@ -42,9 +42,18 @@ def predict_sentiment(text):
 
 # Function to map probabilities to sentiment labels and emojis
 def get_sentiment_label(probs):
-    sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"] # Assuming 3 labels: Negative, Neutral, Positive
+    sentiment_emojis = {
+        "Negative": "😡",
+        "Neutral": "😐",
+        "Positive": "😊"
+    }
+    sentiment_labels = ["Negative", "Neutral", "Positive"]
     max_index = probs.argmax()
-    return sentiment_mapping[max_index]
+    sentiment_label_key = sentiment_labels[max_index]
+    sentiment_text_label = sentiment_labels[max_index] # Just the text label (e.g., "Positive")
+    emoji = sentiment_emojis[sentiment_label_key]
+    background_emojis = emoji * 5  # Repeat emoji for background
+    return sentiment_text_label, background_emojis # Return both text label and background emojis
 
 # Function to get background color based on sentiment
 def get_background_color(label):
@@ -97,6 +106,26 @@ st.markdown(
         padding: 10px;
         text-align: center;
         font-size: 18px;
+        position: relative; /* For absolute positioning of background emojis */
+        overflow: hidden; /* To contain background emojis within the box */
+    }
+    .sentiment-text {
+        position: relative; /* To ensure text is above background emojis */
+        z-index: 1; /* Text in front of emojis */
+    }
+    .sentiment-emojis-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 80px; /* Adjust emoji size */
+        opacity: 0.3; /* Adjust transparency */
+        z-index: 0; /* Background layer */
+        pointer-events: none; /* Make sure emojis don't interfere with text interaction */
     }
     .center-image {
         display: block;
@@ -134,12 +163,15 @@ user_input = st.text_area("Enter your AirPods review here") # Changed text area 
 if st.button("🔍 Analyze Sentiment"): # Changed button text and icon
     if user_input:
         sentiment_probs = predict_sentiment(user_input)
-        sentiment_label = get_sentiment_label(sentiment_probs[0])  # Get the label for the highest probability
-        background_color = get_background_color(sentiment_label)  # Get the background color for the sentiment
+        sentiment_label_text, background_emojis = get_sentiment_label(sentiment_probs[0]) # Get both
+        background_color = get_background_color(sentiment_label_text)  # Use text label for color
         st.markdown(
             f"""
-            <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
+            <div class="prediction-box" style="background-color:{background_color};">
+                <div class="sentiment-emojis-bg">{background_emojis}</div>
+                <div class="sentiment-text">
+                    <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label_text}</h3>
+                </div>
             </div>
             """,
             unsafe_allow_html=True
