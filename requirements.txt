@@ -1,6 +1,6 @@
 streamlit
-pandas==2.2.2
-scikit-learn==1.6.1
-transformers==4.47.1
-datasets==3.2.0
-torch==2.5.1+cu124
+pandas
+scikit-learn
+transformers
+datasets
+torch
