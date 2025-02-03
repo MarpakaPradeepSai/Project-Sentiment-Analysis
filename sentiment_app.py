@@ -70,19 +70,19 @@ st.markdown(
         background-color: #F0F2F6;
     }
     .stButton>button {
-        background-color: #007bff;
+        background: linear-gradient(90deg, #ff8a00, #e52e71);
         color: white;
         border: none;
         border-radius: 25px;
-        padding: 10px 24px;
+        padding: 10px 20px;
+        font-size: 1.2em;
+        font-weight: bold;
         cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s, transform 0.3s;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .stButton>button:hover {
-        background-color: #0056b3;
-        color: white;
         transform: scale(1.05);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
     }
     .prediction-box {
         border-radius: 25px;
@@ -123,7 +123,7 @@ for i, url in enumerate(image_urls):
 
 user_input = st.text_area("Enter your AirPods review here") # Changed text area placeholder
 
-if st.button("Analyze"):
+if st.button("🔍 Analyze Sentiment"): # Changed button text and icon
     if user_input:
         sentiment_probs = predict_sentiment(user_input)
         sentiment_label = get_sentiment_label(sentiment_probs[0])  # Get the label for the highest probability
