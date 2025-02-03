@@ -209,6 +209,9 @@ for i, url in enumerate(image_urls):
 # --- User Input Text Area ---
 user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
 
+# --- Placeholder for Sentiment Result ---
+prediction_placeholder = st.empty() # Create an empty placeholder
+
 # --- Analyze Sentiment Button ---
 if st.button("🔍 Analyze Sentiment"): # Original button text and icon
     if user_input:
@@ -220,7 +223,8 @@ if st.button("🔍 Analyze Sentiment"): # Original button text and icon
             floating_emojis_html = generate_floating_emojis(sentiment_label) # Generate emojis HTML
 
         st.divider() # Keep divider
-        st.markdown(
+        # Update the placeholder with the new markdown content
+        prediction_placeholder.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
                 {floating_emojis_html} <!-- Insert floating emojis here -->
