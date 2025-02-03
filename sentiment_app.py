@@ -4,7 +4,6 @@ import torch
 import requests
 import os
 import time  # For adding a loading spinner
-import random # For randomizing emoji position
 
 # --- Function to download model files from GitHub ---
 def download_file_from_github(url, local_path):
@@ -76,7 +75,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- Custom CSS for a more attractive look and floating emojis ---
+# --- Custom CSS for a more attractive look ---
 st.markdown(
     """
     <style>
@@ -117,8 +116,6 @@ st.markdown(
         padding: 10px; /* Original prediction box padding */
         text-align: center; /* Original prediction box text-align */
         font-size: 18px; /* Original prediction box font-size */
-        position: relative; /* Needed for absolute positioning of emoji */
-        overflow: hidden; /* Clip emojis that go outside the box */
     }
     .stTextArea textarea {
         border-radius: 15px; /* Keep text area border-radius */
@@ -131,37 +128,6 @@ st.markdown(
         color: #999; /* Light gray placeholder text - keep if desired */
         font-style: italic; /* Italic placeholder text - keep if desired */
     }
-
-    /* Floating Emoji Styles */
-    .floating-emoji {
-        position: absolute; /* Positioned relative to prediction-box */
-        font-size: 2em; /* Adjust emoji size */
-        animation: float-anim 3s ease-in-out infinite; /* Floating animation */
-        opacity: 0.8; /* Make emojis slightly transparent */
-    }
-
-    .emoji-negative {
-        top: -10px; /* Adjust vertical position for negative emoji */
-        left: 10px; /* Adjust horizontal position for negative emoji */
-    }
-
-    .emoji-neutral {
-        bottom: -5px; /* Adjust vertical position for neutral emoji */
-        right: 20px; /* Adjust horizontal position for neutral emoji */
-    }
-
-    .emoji-positive {
-        top: -20px; /* Adjust vertical position for positive emoji */
-        right: 10px; /* Adjust horizontal position for positive emoji */
-    }
-
-
-    @keyframes float-anim {
-        0% { transform: translateY(0); }
-        50% { transform: translateY(-10px); } /* Adjust float height */
-        100% { transform: translateY(0); }
-    }
-    </style>
     """,
     unsafe_allow_html=True
 )
@@ -197,17 +163,14 @@ if st.button("🔍 Analyze Sentiment"): # Original button text and icon
         with st.spinner('Analyzing sentiment...'): # Keep spinner
             time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
             sentiment_probs = predict_sentiment(user_input)
-            sentiment_label_full = get_sentiment_label(sentiment_probs[0]) # Get label with emoji
-            sentiment_label_text = sentiment_label_full.split(" ")[0] # Extract text part (e.g., "Negative")
-            sentiment_emoji = sentiment_label_full.split(" ")[1] # Extract emoji part (e.g., "😡")
-            background_color = get_background_color(sentiment_label_text)
+            sentiment_label = get_sentiment_label(sentiment_probs[0])
+            background_color = get_background_color(sentiment_label)
 
         st.divider() # Keep divider
         st.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label_text}</h3>
-                <div class="floating-emoji emoji-{sentiment_label_text.lower()}">{sentiment_emoji}</div>
+                <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
             </div>
             """,
             unsafe_allow_html=True
