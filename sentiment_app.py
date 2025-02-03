@@ -1,14 +1,29 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
+import requests
 
-# Load model and tokenizer from your GitHub repository
-model_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/tree/main/ALBERT_Model"  # Replace with the actual GitHub model URL
-tokenizer_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/tree/main/ALBERT_Model"  # Same here for the tokenizer
+# Define URLs to fetch the model and tokenizer from your GitHub repository
+model_url = "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/raw/main/ALBERT_Model"
+tokenizer_url = model_url
 
-# Load model and tokenizer
-model = AutoModelForSequenceClassification.from_pretrained(model_url, num_labels=3)
-tokenizer = AutoTokenizer.from_pretrained(tokenizer_url)
+# Load model and tokenizer from GitHub repository
+def load_model_and_tokenizer(model_url, tokenizer_url):
+    # Download model and tokenizer files
+    model_files = ["config.json", "model.safetensors", "special_tokens_map.json", "spiece.model", "tokenizer.json", "tokenizer_config.json"]
+    for file in model_files:
+        file_url = f"{model_url}/{file}"
+        response = requests.get(file_url)
+        with open(file, 'wb') as f:
+            f.write(response.content)
+    
+    # Load model and tokenizer
+    model = AutoModelForSequenceClassification.from_pretrained('./ALBERT_Model', num_labels=3)
+    tokenizer = AutoTokenizer.from_pretrained('./ALBERT_Model')
+    return model, tokenizer
+
+# Load the model and tokenizer
+model, tokenizer = load_model_and_tokenizer(model_url, tokenizer_url)
 
 # Function to predict sentiment
 def predict_sentiment(text):
@@ -41,4 +56,3 @@ if st.button("Analyze Sentiment"):
         st.write(f"Sentiment: **{sentiment}**")
     else:
         st.warning("Please enter some text for analysis.")
-
