@@ -52,7 +52,7 @@ def get_sentiment_label(probs):
     sentiment_label_key = sentiment_labels[max_index]
     sentiment_text_label = sentiment_labels[max_index] # Just the text label (e.g., "Positive")
     emoji = sentiment_emojis[sentiment_label_key]
-    background_emojis = emoji * 45  # Increased emoji count significantly
+    background_emojis = emoji * 45  # Keep emoji count same for now
     return sentiment_text_label, background_emojis # Return both text label and background emojis
 
 # Function to get background color based on sentiment
@@ -108,6 +108,7 @@ st.markdown(
         font-size: 18px;
         position: relative; /* For absolute positioning of background emojis */
         overflow: hidden; /* To contain background emojis within the box */
+        min-height: 120px; /* Ensure box is tall enough for 3 rows of emojis */
     }
     .sentiment-text {
         position: relative; /* To ensure text is above background emojis */
@@ -120,11 +121,11 @@ st.markdown(
         width: 100%;
         height: 100%;
         display: grid; /* Use grid layout */
-        grid-template-columns: repeat(auto-fit, minmax(1em, 1fr)); /* Responsive columns */
-        grid-template-rows: repeat(3, auto); /* 3 rows, auto height */
+        grid-template-columns: repeat(auto-fit, minmax(0.8em, 1fr)); /* Tighter columns */
+        grid-template-rows: repeat(3, 1fr); /* 3 rows, equal height distribution */
         /* justify-items: center;  Remove horizontal centering */
         align-items: center; /* Center emojis vertically in each cell */
-        font-size: 40px; /* Reduced emoji size */
+        font-size: 20px; /* Further reduced emoji size */
         opacity: 0.3; /* Adjust transparency */
         z-index: 0; /* Background layer */
         pointer-events: none; /* Make sure emojis don't interfere with text interaction */
