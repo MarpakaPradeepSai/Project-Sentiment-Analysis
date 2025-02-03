@@ -68,25 +68,9 @@ def get_background_color(label):
     else:
         return "#F5C6CB"  # Original softer red
 
-# --- Function to generate floating emojis HTML ---
+# --- Function to generate floating emojis HTML (DISABLED for now) ---
 def generate_floating_emojis(label):
-    emoji = ""
-    if "Positive" in label:
-        emoji = "😊"
-    elif "Neutral" in label:
-        emoji = "😐"
-    else:
-        emoji = "😡"
-
-    emojis_html = '<div class="floating-emojis">'
-    for i in range(3): # Generate a few emojis
-        # Randomize horizontal position and animation delay slightly for each emoji
-        start_left = 40 + random.randint(0, 20) # Start left position between 40% and 60%
-        animation_delay = random.uniform(0, 0.5) # Slight delay for each emoji to start
-        emojis_html += f'<span class="floating-emoji" style="left: {start_left}%; animation-delay: {animation_delay}s;">{emoji}</span>'
-    emojis_html += '</div>'
-    return emojis_html
-
+    return "" # Return empty string to disable emojis
 
 # --- Streamlit app ---
 st.set_page_config(
@@ -152,33 +136,17 @@ st.markdown(
         font-style: italic; /* Italic placeholder text - keep if desired */
     }
 
-    /* Floating Emojis CSS */
+    /* Floating Emojis CSS - DISABLED for now */
     .floating-emojis {
-        position: absolute;
-        top: 0; /* Start from the top of the prediction box */
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none; /* To prevent emojis from interfering with clicks */
+        display: none; /* Hide emojis for now */
     }
 
     .floating-emoji {
-        position: absolute;
-        bottom: -10px; /* Start slightly below the prediction box */
-        font-size: 2em; /* Adjust size as needed */
-        opacity: 0; /* Start invisible */
-        animation: floatUpAndFade 1.5s ease-out forwards; /* Animation */
+        display: none; /* Hide emojis for now */
     }
 
     @keyframes floatUpAndFade {
-        0% {
-            transform: translateY(20px); /* Start position below */
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-80px); /* End position above */
-            opacity: 0;
-        }
+        /* Animation - DISABLED for now */
     }
     """,
     unsafe_allow_html=True
@@ -220,12 +188,12 @@ if st.button("🔍 Analyze Sentiment"):
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
             background_color = get_background_color(sentiment_label)
-            floating_emojis_html = generate_floating_emojis(sentiment_label)
+            floating_emojis_html = generate_floating_emojis(sentiment_label) # This will now return an empty string
 
         prediction_placeholder.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                {floating_emojis_html}
+                {floating_emojis_html}  <!-- This will be empty -->
                 <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
             </div>
             """,
