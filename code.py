@@ -1,49 +1,48 @@
+# app.py
 import streamlit as st
-from transformers import AlbertTokenizer, AutoModelForSequenceClassification
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 
-# Load model and tokenizer from local directory
+# Load the fine-tuned model and tokenizer
 @st.cache_resource
 def load_model():
-    model = AutoModelForSequenceClassification.from_pretrained('./ALBERT_Model')
-    tokenizer = AlbertTokenizer.from_pretrained('./ALBERT_Model')
+    model_path = './fine_tuned_ALBERT-base-v2_model'  # Path to your saved model
+    model = AutoModelForSequenceClassification.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
     return model, tokenizer
 
 model, tokenizer = load_model()
 
-# Sentiment labels
+# Sentiment class labels
 class_labels = ['Negative', 'Neutral', 'Positive']
 
-# Prediction function
-def predict_sentiment(text):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+def analyze_sentiment(text):
+    inputs = tokenizer(text, padding=True, truncation=True, return_tensors="pt")
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    inputs = {key: value.to(device) for key, value in inputs.items()}
+
+    model.eval()  # Set the model to evaluation mode
     with torch.no_grad():
         outputs = model(**inputs)
-    probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
-    pred_class = torch.argmax(probs).item()
-    return class_labels[pred_class], probs[0].tolist()
+        logits = outputs.logits
+    predictions = torch.argmax(logits, dim=-1).cpu().numpy()
+    return class_labels[predictions[0]]
 
-# Streamlit UI
-st.title("✈️ Airline Sentiment Analysis with ALBERT")
-st.write("Analyze passenger reviews for Negative, Neutral, or Positive sentiment")
+st.title("Sentiment Analysis with ALBERT")
 
-review = st.text_area("Enter your airline review here:", height=150)
+review_text = st.text_area("Enter your review here:")
 
 if st.button("Analyze Sentiment"):
-    if review.strip() == "":
-        st.warning("Please enter a review to analyze")
+    if review_text:
+        predicted_sentiment = analyze_sentiment(review_text)
+        st.write("### Predicted Sentiment:")
+        if predicted_sentiment == 'Positive':
+            st.success(f"Positive 😊")
+        elif predicted_sentiment == 'Negative':
+            st.error(f"Negative 😠")
+        else:
+            st.warning(f"Neutral 😐")
     else:
-        prediction, probabilities = predict_sentiment(review)
-        emoji = "😞" if prediction == "Negative" else "😐" if prediction == "Neutral" else "😊"
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.subheader("Prediction:")
-            st.markdown(f"<h2 style='color: {'red' if prediction == 'Negative' else 'orange' if prediction == 'Neutral' else 'green'};'>{emoji} {prediction}</h2>", 
-                        unsafe_allow_html=True)
-        
-        with col2:
-            st.subheader("Confidence:")
-            st.write(f"Negative: {probabilities[0]*100:.1f}%")
-            st.write(f"Neutral: {probabilities[1]*100:.1f}%")
-            st.write(f"Positive: {probabilities[2]*100:.1f}%")
+        st.warning("Please enter a review to analyze.")
