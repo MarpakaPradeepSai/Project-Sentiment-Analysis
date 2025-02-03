@@ -2,9 +2,10 @@ import streamlit as st
 from transformers import AlbertTokenizer, AutoModelForSequenceClassification
 import torch
 
-# Update the MODEL_PATH to point to your local directory
-# Define the model path relative to your repo structure
+# Path to your GitHub repository's model folder
 MODEL_PATH = './ALBERT_Model'
+
+# Load model and tokenizer from GitHub
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
 tokenizer = AlbertTokenizer.from_pretrained(MODEL_PATH)
 
