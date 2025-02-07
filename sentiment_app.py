@@ -5,6 +5,14 @@ import requests
 import os
 import time  # For adding a loading spinner
 
+# --- Set page config MUST be the first Streamlit command ---
+st.set_page_config(
+    page_title="AirPods Review Sentiment Analyzer",
+    page_icon=":headphones:",
+    layout="centered",
+    initial_sidebar_state="expanded",
+)
+
 # --- Function to download model files from GitHub ---
 def download_file_from_github(url, local_path):
     response = requests.get(url, stream=True) # Use stream=True for potentially large files
@@ -68,12 +76,7 @@ def get_background_color(label):
         return "#F5C6CB"  # Original softer red
 
 # --- Streamlit app ---
-st.set_page_config(
-    page_title="AirPods Review Sentiment Analyzer",
-    page_icon=":headphones:",
-    layout="centered",
-    initial_sidebar_state="expanded",
-)
+
 
 # --- Custom CSS for a more attractive look ---
 st.markdown(
