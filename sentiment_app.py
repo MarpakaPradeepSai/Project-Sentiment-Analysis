@@ -25,7 +25,7 @@ def download_file_from_github(url, local_path):
         st.error(f"Failed to download {url}: Status code {response.status_code}")
 
 # --- URLs of your ALBERT model files on GitHub ---
-repo_url = 'https://github.com/MarpakaPradeepSai/Simple-Events-Ticketing-Customer-Support-Chatbot/tree/main/ALBERT_Model'
+repo_url = 'https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/raw/main/ALBERT_Model'
 files = ['config.json', 'model.safetensors', 'special_tokens_map.json', 'spiece.model', 'tokenizer.json', 'tokenizer_config.json']
 
 # --- Create model directory if it doesn't exist ---
