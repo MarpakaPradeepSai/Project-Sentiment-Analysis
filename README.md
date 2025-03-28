@@ -1,2 +1,2 @@
 # Project-Sentiment-Analysis
-Streamlit App 🔥: https://project-sentiment-analysis.streamlit.app/
+Streamlit App🔥: https://project-sentiment-analysis.streamlit.app/
