@@ -4,3 +4,4 @@ torch
 sentencepiece
 tokenizers==0.15.2
 datasets
+huggingface_hub==0.19.4
