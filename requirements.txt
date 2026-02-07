@@ -1,5 +1,6 @@
 streamlit
-transformers>=4.20.0  # Or a more recent version
+transformers==4.36.2
 torch
 sentencepiece
+tokenizers==0.15.2
 datasets
