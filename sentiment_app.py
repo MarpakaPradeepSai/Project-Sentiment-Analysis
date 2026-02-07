@@ -1,5 +1,5 @@
 import streamlit as st
-from transformers import AlbertTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import time  # For adding a loading spinner
 
@@ -17,7 +17,7 @@ model_name = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 # --- Load tokenizer and model from Hugging Face Hub ---
 @st.cache_resource
 def load_model():
-    tokenizer = AlbertTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSequenceClassification.from_pretrained(model_name)
     return tokenizer, model
 
