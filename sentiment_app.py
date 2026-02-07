@@ -1,6 +1,8 @@
 import streamlit as st
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AlbertTokenizer, AutoModelForSequenceClassification
 import torch
+import requests
+import os
 import time  # For adding a loading spinner
 
 # --- Set page config MUST be the first Streamlit command ---
@@ -11,22 +13,45 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- Hugging Face Model Repository ---
-model_name = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
+# --- Function to download model files from GitHub ---
+def download_file_from_github(url, local_path):
+    response = requests.get(url, stream=True) # Use stream=True for potentially large files
+    if response.status_code == 200:
+        with open(local_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192): # Iterate over chunks
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+    else:
+        st.error(f"Failed to download {url}: Status code {response.status_code}")
 
-# --- Load tokenizer and model from Hugging Face Hub ---
-@st.cache_resource
-def load_model():
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
-    return tokenizer, model
+# --- URLs of your ALBERT model files on GitHub ---
+repo_url = 'https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/raw/main/ALBERT_Model'
+files = ['config.json', 'model.safetensors', 'special_tokens_map.json', 'spiece.model', 'tokenizer.json', 'tokenizer_config.json']
 
-try:
-    with st.spinner('Loading model from Hugging Face Hub...'):
-        tokenizer, model = load_model()
-except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.stop()
+# --- Create model directory if it doesn't exist ---
+model_dir = './albert_model'
+if not os.path.exists(model_dir):
+    os.makedirs(model_dir)
+
+# --- Download each file if model directory is empty or files are missing ---
+if not os.listdir(model_dir) or any(not os.path.exists(os.path.join(model_dir, file)) for file in files):
+    with st.spinner('Downloading and loading model files...'): # Show spinner while downloading
+        for file in files:
+            download_file_from_github(f"{repo_url}/{file}", os.path.join(model_dir, file))
+
+        # Load tokenizer and model after download is complete
+        try:
+            tokenizer = AlbertTokenizer.from_pretrained(model_dir)
+            model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=3)
+            st.success("Model files downloaded and loaded successfully!") # Success message after loading
+        except Exception as e:
+            st.error(f"Error loading model after download: {e}")
+else:
+    try:
+        tokenizer = AlbertTokenizer.from_pretrained(model_dir)
+        model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=3)
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
 
 # --- Function to predict sentiment ---
 def predict_sentiment(text):
