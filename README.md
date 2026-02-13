@@ -194,17 +194,15 @@ Try the live sentiment analysis app here:
 ```
 Project-Sentiment-Analysis/
 ├── Notebooks/
-│   ├── Web_Scraping_Walmart_Reviews.ipynb          # HTML download + JSON extraction
-│   └── Sentiment_Analysis_Complete.ipynb            # Full analysis & modeling notebook
+│   ├── Walmart_Apple_Airpods_Reviews_Scraping.ipynb            # HTML download + JSON extraction
+│   └── Walmart_Apple_AirPods_Sentiment_Analysis.ipynb          # Full analysis & modeling notebook
 ├── Data/
-│   ├── Walmart_AirPods_All_Reviews.csv              # Extracted reviews dataset
-│   └── Walmart_AirPods_Sentiment_Llama_3.2_1B_Instruct.csv  # Llama-labeled reviews
-├── Model/
-│   └── AirPods_fine_tuned_ALBERT_base_v2_model_balanced/     # Saved fine-tuned ALBERT model
-├── app.py                                           # Streamlit web application
-├── requirements.txt                                 # Python dependencies
-├── LICENSE                                          # MIT License
-└── README.md                                        # Project documentation
+│   ├── Walmart_AirPods_All_Reviews.csv                         # Extracted reviews dataset
+│   └── Walmart_AirPods_Sentiment_Llama_3.2_1B_Instruct.csv     # Llama-labeled reviews
+├── sentiment_app.py                                            # Streamlit web application
+├── requirements.txt                                            # Python dependencies
+├── LICENSE                                                     # MIT License
+└── README.md                                                   # Project documentation
 ```
 
 <br>
